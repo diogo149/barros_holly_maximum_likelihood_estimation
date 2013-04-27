@@ -1,0 +1,8 @@
+I am sending attached the file with a note on the estimation procedure we would like you to code (in whatever programming language you prefer).
+This is for maximum likelihood estimation, and I am collecting the data in a single file with only the data required for estimation.
+Basically, we have a system of equations with qualitative dependent variables and recursive.
+The first variable (and equation) is 0/1 for going to a doctor, the second variable is 0/1 for taking pharmaceutical products and is dependent on going to the doctor;
+the third variable is health status in 1 to 5 scale, which depends on both previous variables. All these depend as well on other factors (variables).
+
+We want to obtain the parameters of these equations. To do it, we need to have a maximum likelihood function to be the maximized on parameters, and this is what
+my colleague Alberto Holly has derived in the note I am sending.
