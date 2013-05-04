@@ -1,0 +1,81 @@
+P: Hi Diogo
+D: Heya Uncle Pedro!
+P: just back home :) , got your email, all alpha's, beta's, sigma's and rho's are to be estimated
+D: How are things?
+D: Okay
+D: That clarifies many things. I was like "where did these betas start appearing from"
+P: fine, carolina is still at school and henrique is mad with something
+D: mad as in angry or mad as in crazy
+P: better for you to use chat or video call
+P: angry, he thinks he lost his sunglasses
+D: I can't right now. My computer's microphone sucks.
+D: Unfortunately
+P: no problem, chat is fine with me
+D: and it's noisy
+D: What also is with the superscripts?
+D: It seems everything has superscript 0
+P: 1 min, phone
+D: Sure thing
+P: back,
+P: sorry
+D: No prob
+P: superscripts, the zero?
+D: yeah
+D: and sometimes there are superscripts with 02
+D: And I wasn't sure if
+D: it meant the value was squared
+P: the 02 is probably sigma_1^0 squared
+P: (expression 2.19)
+P: (the same in the paragraph just before 2.20)
+D: Okay, what about x variables with a tick?
+P: that's vector of variables
+P: the observed characteristics
+D: why is there a tick though
+P: to have it transposed to multiply by the vector of parameters
+D: ohhh okay
+P: say, the standard linear regression would be written as y=x' beta + error term
+P: perhaps I should describe quickly the model and the logic
+P: we have three variables (choices of people)
+P: to see a doctor - how many times, - it is a count variable, takes integer values with usually many zeros - modelled as a poisson distribution
+D: these are the y's aren't ther?
+D: they*
+P: yes,
+D: and given in the dataset
+P: the number of visits to doctor is y_1
+P: taking pharmaceuticals - takes value 0 or 1 - modelled as a normal distribution (called probit model)
+P: health status - from 1 to 5 - reported by people, categorical variable - modelled as ordered probit - think of a real line to describe a latent variable with 4 cutoff points defining 5 parts, each corresponding to reporting a different health status
+P: the y_1 follows a poission with mean given in expression 2.15
+P: where x is the vector of variables and beta the corresponding parameters
+D: Quick question though
+P: sure,
+D: I just assumed that the subscript meant that element in the vector
+D: So I was confused by the ticks transposing an element
+P: we use the subscript to denote that variables used in each equation can be different
+P: x_1 is the set of variables influencing the mean of the count variable (visits)
+P: x_2 is the vector of variables that affect the latent variable y_2^*, which is partitioned in observables 0 or 1, to this vector we add y_1 (the observed value of visits to the doctor), which carries a parameter alpha just to distinguish it from the betas's of the x variables
+P: then y_3^* is the latent variable for the health status, which is determined by the vector of variables x_3 (with vector of parameters beta_3), and the realized values of the two other variables (y_1 and y_2) with the corresponding alpha's in the third equation
+P: This is a recursive system of equations - each dependent variable enters in the next equation
+P: then 2.17 gives the covariance matrix for the error structure
+P: in the qualitative dependent variables equations (second and third line of 2.16) we have a degree of freedom in the model which we use to set the variance to 1 - which are the 1's in the diagonal of 2.19
+P: 2.20 and 2.21 are what we observe and how it is linked to the latent variable
+P: in the case of y_2, there is one cutoff in the latent variable - so we can normalize it to zero wlog
+D: Okay, I need to go to class now!
+D: But I understand it better and I can do more work on it
+P: sure, thanks, should I make an email explaning some more of this?
+D: I started writing a bit of it in matlab (the problem seemed like it was a good fit for it)
+D: The more information, the better :)
+P: :D
+D: I'll talk to you soon and let you know what issues I come up with
+D: One other question
+D: what algorithm would you suggest
+D: to increment the variables we're estimation
+D: or would a gradient descent be fine
+D: (I recall MLE has lots of local optima)
+P: no idea what will work best here, lots of local optima is likely
+P: gradient is what I use in simpler models, I will see whether alberto has different experience
+P: we will have to set starting values as well
+P: but for that we can use simpler model, from existing packages and then improve from it
+P: that's for a later stage
+D: Okay, I'll talk to you soon!
+D: bye bye
+P: bye
