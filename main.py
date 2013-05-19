@@ -72,11 +72,10 @@ class Likelihood(object):
         """
         from equation 2.26
         """
-        # put a summation over all data points here
         likelihood = 0.0
         for i, j, k, x_1, x_2, x_3 in self.data:
             x = [x_1, x_2, x_3]
-            likelihood += np.log(self.prob(k, i, j, x))
+            likelihood += np.log(1e-10 + self.prob(k, i, j, x))
         return likelihood
 
     def prob(self, k, i, j, x):
@@ -91,29 +90,29 @@ class Likelihood(object):
             u_2, u_3 = self.generate_u(u_1)
             # generate alpha & beta
             # potentially pass in alpha & beta to functions
-            left = self.P_y2_y3(i, j, k, u_1)
+            left = self.P_y2_y3(i, j, k, u_1, x)
             middle = self.P_y1(k, u_1, x[0])
             right = self.d_phi(u_1)
             return left * middle * right
 
-        return integrate.quad(prob_integrand, -np.inf, np.inf)
+        return integrate.quad(prob_integrand, -np.inf, np.inf)[0]
 
     def generate_u(self, u_1):
         """
         from equation 2.23
         """
         cov = self.u_cov()
-        mean = self.u_mean() * u_1
+        mean = self.u_mean(u_1)
         return np.random.multivariate_normal(mean, cov)
 
-    def u_mean(self):
+    def u_mean(self, u_1):
         """
         first argument from equation 2.23
         """
         p12 = self.rho_12
         p13 = self.rho_13
         s1 = self.sigma_1
-        return np.array([p12, p13]) / s1
+        return np.array([p12, p13]) / s1 * u_1
 
     def u_cov(self):
         """
@@ -153,7 +152,7 @@ class Likelihood(object):
         x3b3 = np.dot(x3, b3)
         a21k = a21 * k
         a31k = a31 * k
-        u2mean, u3mean = self.u_mean()
+        u2mean, u3mean = self.u_mean(u_1)
         div_p13 = np.sqrt(1 - p13 ** 2)
         div_p12 = np.sqrt(1 - p12 ** 2)
         term_y2 = - (x2b2 + a21k + u2mean) / div_p12
@@ -224,7 +223,14 @@ def main(smaller=True):
     data = parse_file(
         filename, i_col, j_col, k_col, x_1_cols, x_2_cols, x_3_cols)
 
-    print()
+    _, _, _, x1, x2, x3 = data[0]
+    b1 = np.ones(x1.shape)
+    b2 = np.ones(x2.shape)
+    b3 = np.ones(x3.shape)
+    data = data[:100]
+    likelihood = Likelihood(
+        data, b1, b2, b3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1)
+    print(likelihood.L())
 
 if __name__ == "__main__":
     main()
