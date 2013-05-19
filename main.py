@@ -55,16 +55,17 @@ class Likelihood(object):
 
     def __init__(self, data, beta_1, beta_2, beta_3, alpha_21, alpha_31, alpha_32, sigma_1, rho_12, rho_13, rho_23):
         self.data = data
+        self.sigma_1 = sigma_1
+        self.rho_12 = rho_12
+        self.rho_13 = rho_13
+        self.rho_23 = rho_23
+
         self.beta_1 = beta_1
         self.beta_2 = beta_2
         self.beta_3 = beta_3
         self.alpha_21 = alpha_21
         self.alpha_31 = alpha_31
         self.alpha_32 = alpha_32
-        self.sigma_1 = sigma_1
-        self.rho_12 = rho_12
-        self.rho_13 = rho_13
-        self.rho_23 = rho_23
         self.alphas = [-np.inf, -2, -1, 1, 2, np.inf]
 
     def L(self):
@@ -72,11 +73,11 @@ class Likelihood(object):
         from equation 2.26
         """
         # put a summation over all data points here
-        for n in range(1):
-            k = i = j = 1
-            x = [np.ones(3), np.ones(4), np.ones(5)]
-            # make sure to extract k, i, j, x from the data point here
-            return np.log(self.prob(k, i, j, x))
+        likelihood = 0.0
+        for i, j, k, x_1, x_2, x_3 in self.data:
+            x = [x_1, x_2, x_3]
+            likelihood += np.log(self.prob(k, i, j, x))
+        return likelihood
 
     def prob(self, k, i, j, x):
         """
@@ -145,7 +146,6 @@ class Likelihood(object):
         p23 = self.rho_23
         a21 = self.alpha_21
         a31 = self.alpha_31
-        a32 = self.alpha_32
         a = self.alphas
 
         '''caching computation'''
@@ -182,12 +182,22 @@ class Likelihood(object):
         return stats.poisson.pmf(k, lambda_)
 
 
-def parse_file(filename):
+def parse_file(filename, i_col, j_col, k_col, x_1_cols, x_2_cols, x_3_cols):
     df = pd.read_csv(filename)
-    # select cols into x1 x2 x3 and i j k
+
+    i = df[i_col]
+    j = df[j_col]
+    k = df[k_col]
+
+    x_1 = df[x_1_cols].as_matrix()
+    x_2 = df[x_2_cols].as_matrix()
+    x_3 = df[x_3_cols].as_matrix()
+
+    data = zip(i, j, k, x_1, x_2, x_3)
+    return data
 
 
-def main():
+def main(smaller=True):
     filename = "barros-holly-data.csv"
 
     x_1_cols = """gender income income2 public_sub private_sub age age2
@@ -202,16 +212,19 @@ def main():
     wine_days single married widow north center alentejo algarve acores
     madeira""".split()
 
-    x_1_cols = ["gender", "income", "age"]
-    x_2_cols = "gender age income schooling".split()
-    x_3_cols = "gender income age public_sub private_sub".split()
+    if smaller:
+        x_1_cols = ["gender", "income", "age"]
+        x_2_cols = "gender age income schooling".split()
+        x_3_cols = "gender income age public_sub private_sub".split()
 
     i_col = "visit_doctor"
     j_col = "pharma_use"
     k_col = "health"
 
-    z = Psi(0.9, 0.3, 0.5)
-    print(z)
+    data = parse_file(
+        filename, i_col, j_col, k_col, x_1_cols, x_2_cols, x_3_cols)
+
+    print()
 
 if __name__ == "__main__":
     main()
