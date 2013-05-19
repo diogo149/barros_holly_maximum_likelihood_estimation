@@ -6,6 +6,7 @@ assumptions:
     -u_i^0 is a scalar for i = 1, 2, 3
     -beta_i is a vector for i = 1, 2, 3
     -alpha_i is a scalar for i = 21, 31, 32
+    -alpha_i is a scalar for i = 1, 2, 3, 4 (at 0 and 5, alpha_i = infinity)
     -sigma_1 is a scalar
     -rho_i is a scalar for i = 12, 13, 23
     -betas and alphas are input parameters (this is definitely not the case and must be fixed)
@@ -13,10 +14,14 @@ assumptions:
 to do:
     -find out how to generate beta and alpha
     -perform optimization on parameters
+    -test for infinity's in P_y2_y3 to give result without computation
+    -read file
+
 """
 
 from __future__ import print_function
 import numpy as np
+import pandas as pd
 from scipy import stats
 from scipy import integrate
 
@@ -30,7 +35,9 @@ def phi(x):
 
 
 def Psi(rho, a, b):
-    """"assumes rho < 1
+    """"
+    from equation 1.3
+    assumes rho ** 2 < 1
     """
 
     '''for infinite integrals'''
@@ -58,18 +65,28 @@ class Likelihood(object):
         self.rho_12 = rho_12
         self.rho_13 = rho_13
         self.rho_23 = rho_23
+        self.alphas = [-np.inf, -2, -1, 1, 2, np.inf]
 
     def L(self):
+        """
+        from equation 2.26
+        """
         # put a summation over all data points here
         for n in range(1):
             k = i = j = 1
             x = [np.ones(3), np.ones(4), np.ones(5)]
-            # make sure to extract k, i, j from the data point here
+            # make sure to extract k, i, j, x from the data point here
             return np.log(self.prob(k, i, j, x))
 
     def prob(self, k, i, j, x):
+        """
+        from equation 2.22
+        """
 
         def prob_integrand(u_1):
+            """
+            integrand from equation 2.22
+            """
             u_2, u_3 = self.generate_u(u_1)
             # generate alpha & beta
             # potentially pass in alpha & beta to functions
@@ -81,17 +98,26 @@ class Likelihood(object):
         return integrate.quad(prob_integrand, -np.inf, np.inf)
 
     def generate_u(self, u_1):
+        """
+        from equation 2.23
+        """
         cov = self.u_cov()
         mean = self.u_mean() * u_1
         return np.random.multivariate_normal(mean, cov)
 
     def u_mean(self):
+        """
+        first argument from equation 2.23
+        """
         p12 = self.rho_12
         p13 = self.rho_13
         s1 = self.sigma_1
         return np.array([p12, p13]) / s1
 
     def u_cov(self):
+        """
+        second argument from equation 2.23
+        """
         p12 = self.rho_12
         p13 = self.rho_13
         p23 = self.rho_23
@@ -100,19 +126,90 @@ class Likelihood(object):
         return np.array(sigma)
 
     def d_phi(self, u_1):
+        """
+        from equation after equation 2.22
+        """
         s1 = self.sigma_1
         return phi(u_1 / s1) / s1
 
-    def P_y2_y3(self, i, j, k, u_1):
-        pass
+    def P_y2_y3(self, i, j, k, u_1, x):
+        """
+        from equations 2.24 and 2.25
+        """
+        x2 = x[1]
+        x3 = x[2]
+        b2 = self.beta_2
+        b3 = self.beta_3
+        p12 = self.rho_12
+        p13 = self.rho_13
+        p23 = self.rho_23
+        a21 = self.alpha_21
+        a31 = self.alpha_31
+        a32 = self.alpha_32
+        a = self.alphas
+
+        '''caching computation'''
+        x2b2 = np.dot(x2, b2)
+        x3b3 = np.dot(x3, b3)
+        a21k = a21 * k
+        a31k = a31 * k
+        u2mean, u3mean = self.u_mean()
+        div_p13 = np.sqrt(1 - p13 ** 2)
+        div_p12 = np.sqrt(1 - p12 ** 2)
+        term_y2 = - (x2b2 + a21k + u2mean) / div_p12
+        term_y3 = - (x3b3 + a31k + u3mean) / div_p13
+        term_y3_a = a[j - 1] / div_p13 + term_y3
+        term_y3_b = a[j] / div_p13 + term_y3
+        rho = p23 - p12 * p13
+
+        func1 = Phi(term_y2)
+        func2 = Phi(term_y3_b) - Phi(term_y3_a)
+        func3 = Psi(rho, term_y2, term_y3_a) - Psi(rho, term_y2, term_y3_b)
+
+        if i == 0:
+            return func1 * func2 + func3
+        elif i == 1:
+            return (1 - func1) * func2 - func3
+        else:
+            raise Exception("invalid i value: %s" % i)
 
     def P_y1(self, k, u_1, x_1):
+        """
+        from equation 2.15
+        """
         b1 = self.beta_1
-        lambda_ = np.dot(b1, x_1) + u_1
+        lambda_ = np.exp(np.dot(b1, x_1) + u_1)
         return stats.poisson.pmf(k, lambda_)
 
 
+def parse_file(filename):
+    df = pd.read_csv(filename)
+    # select cols into x1 x2 x3 and i j k
+
+
 def main():
+    filename = "barros-holly-data.csv"
+
+    x_1_cols = """gender income income2 public_sub private_sub age age2
+    schooling north center alentejo algarve acores madeira""".split()
+    x_2_cols = """gender income age age2  schooling diabetes ashtma high_blood_p
+    reumat pain ostheo retina glauco cancer kidney_stone renal anxiety enphisema
+    stroke obese depression heart_attack public_sub private_sub private_insurance
+    age_gender north center alentejo algarve acores madeira""".split()
+    x_3_cols = """gender income public_sub private_sub age age2  schooling diabetes
+    ashtma high_blood_p reumat pain ostheo retina glauco cancer kidney_stone renal
+    anxiety enphisema stroke obese depression heart_attack light_smoker no_smoker
+    wine_days single married widow north center alentejo algarve acores
+    madeira""".split()
+
+    x_1_cols = ["gender", "income", "age"]
+    x_2_cols = "gender age income schooling".split()
+    x_3_cols = "gender income age public_sub private_sub".split()
+
+    i_col = "visit_doctor"
+    j_col = "pharma_use"
+    k_col = "health"
+
     z = Psi(0.9, 0.3, 0.5)
     print(z)
 

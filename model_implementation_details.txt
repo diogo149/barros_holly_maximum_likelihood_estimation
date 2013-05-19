@@ -1,0 +1,24 @@
+some more info, for implementation of the model,
+the y_1 is visit_doctor
+y_2 is pharma_use
+y_3 is health
+
+the variables to include in x_1 are
+gender income income2 public_sub private_sub age age2  schooling north center alentejo algarve acores madeira
+but to get it working start with gender income and age only
+
+the variables to include in x_2 are
+gender income age age2  schooling diabetes ashtma high_blood_p reumat pain ostheo retina glauco cancer kidney_stone
+renal anxiety enphisema stroke obese depression heart_attack public_sub private_sub private_insurance  age_gender north center alentejo algarve acores madeira
+to start use only gender age income schooling
+
+the variables to include in x_3 are
+gender income public_sub private_sub age age2  schooling diabetes ashtma high_blood_p reumat pain ostheo retina glauco cancer"
+ kidney_stone renal anxiety enphisema stroke obese depression heart_attack light_smoker no_smoker wine_days single married widow north center alentejo algarve acores madeira
+
+as in the other 2 cases use only
+gender income age public_sub private_sub
+
+Take only 10% of observations to test routines - the main issue will the time of computing the expectation for the probability at each observation, so the number of observations is the key element to get it fast.
+It may also help first optimizing with respect to the alpha's and beta's (the parameters on the mean effects) holding constant the ones on
+variance-covariance matrix, them fixing the alpha's and beta's optimize with respect to the v-cov matrix,
