@@ -75,6 +75,7 @@ class Likelihood(object):
         likelihood = 0.0
         for i, j, k, x_1, x_2, x_3 in self.data:
             x = [x_1, x_2, x_3]
+            '''note that I add a small constant here to prevent log(0.0)'''
             likelihood += np.log(1e-10 + self.prob(k, i, j, x))
         return likelihood
 
