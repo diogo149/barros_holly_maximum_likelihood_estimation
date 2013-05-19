@@ -11,7 +11,8 @@ assumptions:
     -betas and alphas are input parameters (this is definitely not the case and must be fixed)
 
 to do:
-    -
+    -find out how to generate beta and alpha
+    -perform optimization on parameters
 """
 
 from __future__ import print_function
@@ -62,17 +63,18 @@ class Likelihood(object):
         # put a summation over all data points here
         for n in range(1):
             k = i = j = 1
+            x = [np.ones(3), np.ones(4), np.ones(5)]
             # make sure to extract k, i, j from the data point here
-            return np.log(self.prob(k, i, j))
+            return np.log(self.prob(k, i, j, x))
 
-    def prob(self, k, i, j):
+    def prob(self, k, i, j, x):
 
         def prob_integrand(u_1):
             u_2, u_3 = self.generate_u(u_1)
             # generate alpha & beta
             # potentially pass in alpha & beta to functions
             left = self.P_y2_y3(i, j, k, u_1)
-            middle = self.P_y1(k, u_1)
+            middle = self.P_y1(k, u_1, x[0])
             right = self.d_phi(u_1)
             return left * middle * right
 
@@ -104,8 +106,10 @@ class Likelihood(object):
     def P_y2_y3(self, i, j, k, u_1):
         pass
 
-    def P_y1(self, k, u_1):
-        pass
+    def P_y1(self, k, u_1, x_1):
+        b1 = self.beta_1
+        lambda_ = np.dot(b1, x_1) + u_1
+        return stats.poisson.pmf(k, lambda_)
 
 
 def main():
