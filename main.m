@@ -21,13 +21,13 @@ function Psi = Psi(rho, a, b)
         Psi = 0
         return
     end
-    Psi_func = @(t) exp(-0.5 * (a.^2+b.^2-2.*t.*a.*b)./(1-t.^2)) ./ sqrt(1-t.^2) / 2 / pi;
+    Psi_func = @(t) exp(-0.5 * (a.^2+b.^2-2.*t.*a.*b)./(1-t.^2)) ./ sqrt(1-t.^2);
     X = linspace(0, rho, 1000);
     Y = Psi_func(X);
     % Psi = trapz(X, Y);
     % Psi = simpsons(Psi_func, 0, rho, 1000);
     % Psi = integral(Psi_func, 0, rho);
-    Psi = quad(Psi_func, 0, rho);
+    Psi = quad(Psi_func, 0, rho) / 2 / pi;
 end
 
 function simpsons = simpsons(f, a, b, n)
