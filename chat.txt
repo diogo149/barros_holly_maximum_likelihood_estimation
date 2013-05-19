@@ -70,6 +70,3 @@ P: gradient is what I use in simpler models, I will see whether alberto has diff
 P: we will have to set starting values as well
 P: but for that we can use simpler model, from existing packages and then improve from it
 P: that's for a later stage
-D: Okay, I'll talk to you soon!
-D: bye bye
-P: bye

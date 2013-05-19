@@ -184,6 +184,8 @@ class Likelihood(object):
 def parse_file(filename, i_col, j_col, k_col, x_1_cols, x_2_cols, x_3_cols):
     df = pd.read_csv(filename)
 
+    df = df.ix[df["valid_obs"] == 1]
+
     i = df[i_col]
     j = df[j_col]
     k = df[k_col]
