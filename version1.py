@@ -187,9 +187,9 @@ def parse_file(filename, i_col, j_col, k_col, x_1_cols, x_2_cols, x_3_cols):
 
     df = df.ix[df["valid_obs"] == 1]
 
-    i = df[i_col]
-    j = df[j_col]
-    k = df[k_col]
+    i = df[i_col].astype(np.int)
+    j = df[j_col].astype(np.int)
+    k = df[k_col].astype(np.int)
 
     x_1 = df[x_1_cols].as_matrix()
     x_2 = df[x_2_cols].as_matrix()
@@ -219,9 +219,9 @@ def main(smaller=True):
         x_2_cols = "gender age income schooling".split()
         x_3_cols = "gender income age public_sub private_sub".split()
 
-    i_col = "visit_doctor"
-    j_col = "pharma_use"
-    k_col = "health"
+    k_col = "visit_doctor"
+    i_col = "pharma_use"
+    j_col = "health"
 
     data = parse_file(
         filename, i_col, j_col, k_col, x_1_cols, x_2_cols, x_3_cols)
