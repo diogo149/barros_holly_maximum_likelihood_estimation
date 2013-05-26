@@ -1,0 +1,40 @@
+Wikipedia Ordered Probit
+https://en.wikipedia.org/wiki/Ordered_probit
+
+MASS polr (proportional odds logistic regression) docs
+http://stat.ethz.ch/R-manual/R-patched/library/MASS/html/polr.html
+    -capable of estimating parameters of ordered probit regression
+
+(Slow) Python Ordered Probit
+http://stats.stackexchange.com/questions/25794/implementing-an-ordered-probit-model-in-pymc
+
+Python Ordinal Logistic Regression
+http://adorio-research.org/wordpress/?p=13349
+
+Stata Explanation of Ordered Logit/Probit Cutoff Points
+http://www.stata.com/support/faqs/statistics/cut-points/
+
+Ordinal R Package
+http://cran.r-project.org/web/packages/ordinal/ordinal.pdf
+    -supposedly has function of ordered probit, among other things
+
+R Example: Ordered Logistic Regression
+http://www.ats.ucla.edu/stat/r/dae/ologit.htm
+
+MASS Documentation
+http://cran.r-project.org/web/packages/MASS/MASS.pdf
+
+R Gauss-Hermite Integration Points
+http://www.nuigalway.ie/maths/jh/npmlreg/html/gqz.html
+
+R Gauss-Hermite Integration Points
+http://hosho.ees.hokudai.ac.jp/~kubo/Rdoc/library/glmmML/html/ghq.html
+
+R Maximum Likelihood Estimation of Arbitrary Functions
+http://stat.ethz.ch/R-manual/R-devel/library/stats4/html/mle.html
+
+R Maximum Likelihood Estimation with optim
+http://stackoverflow.com/questions/14084346/maximum-likelihood-estimation
+
+R Lesson on Dichotomous Probit
+http://people.tamu.edu/~b-wood/Maximum%20Likelihood/RLesson%206.htm

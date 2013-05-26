@@ -1,0 +1,16 @@
+the ordered probit code - single equation estimation - for stata
+
+capture program drop mloprobit
+program define mloprobit
+version 8
+  args lnf xb a1 a2 a3 a4
+  local y "$ML_y1"
+  quietly replace `lnf' =  ln(  normal(`a1'-`xb')) if `y'==1
+  quietly replace `lnf' =  ln(  normal(`a2'-`xb') - normal(`a1'-`xb'))  if `y'==2
+  quietly replace `lnf' =  ln(  normal(`a3'-`xb') - normal(`a2'-`xb'))  if `y'==3
+  quietly replace `lnf' =  ln(  normal(`a4'-`xb') - normal(`a3'-`xb'))  if `y'==4
+  quietly replace `lnf' =  ln(1-normal(`a4'-`xb')) if `y'==5
+end
+
+ ml model lf mloprobit (mu3: health = age schooling, nocons) /cut1 /cut2 /cut3 /cut4
+ ml maximize

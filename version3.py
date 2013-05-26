@@ -2,6 +2,7 @@
 notes:
     -what is mu_n from equation 2.38
     -in step 3, the i value that has 1 - Phi(...) is 1 instead of 0
+    -THIS IS WRONG, I USED u1 = v (gauss hermite root), when u1 should = v * sqrt(2 * sigma1)
 
 assumptions:
     -added k column to x[2] and both k and i column to x[3], thus the alpha's become part of the beta's
@@ -29,8 +30,6 @@ class const:
     sqrtpi = np.sqrt(np.pi)
     fact = np.array([factorial(i) for i in range(max_visit_doctor + 1)])
 
-    # last_rho = None
-    # wopts = None
 
 """ ************* Helper Functions ********************* """
 
@@ -58,18 +57,8 @@ def Psi(rho, a, b):
         tmp = (1 - t ** 2)
         return np.exp((t * cache2 + cache1) / tmp) / np.sqrt(tmp)
 
-    # if rho != const.last_rho:
-    #     const.last_rho = rho
-    #     info_dict = integrate.quad(Psi_integrand, 0.0, rho,
-    #                                full_output=110, weight="cos", wvar=0)[2]
-    #     const.wopts = [info_dict["momcom"], info_dict["chebmo"]]
-
-    # I = integrate.quad(Psi_integrand, 0, rho, epsrel=1e-1)[0] / 2 / np.pi
-    # I = integrate.quad(Psi_integrand, 0, rho, weight="cos", wvar=0,
-    #                    wopts=const.wopts)[0] / 2 / np.pi
     I = integrate.romberg(Psi_integrand, 0, rho, rtol=1e-2,
                           vec_func=True) / 2 / np.pi
-    # I[np.isnan(I)] = 0
     return I
 
 PsiVect = np.vectorize(Psi)
