@@ -10,7 +10,7 @@ split_to_vec <- function(str) {
 
 # given a data frame and a string containing column names, returns the
 # columns of the data frame corresponding to those names
-load_data <- function(df, col_str) { 
+load_data <- function(df, col_str) {
   cols = split_to_vec(col_str)
   names_df = names(df)
   for(col in cols) {
@@ -61,37 +61,48 @@ df_subset <- function(df, percent) {
   df[sample(1:rows, rows * percent), ]
 }
 
+# equation of the covariance matrix for u2 and u3, as in equation 2.44
+generate_u_cov <- function(rho12, rho13, rho23) {
+  matrix(c(1 - rho12^2, rho23 - rho12 * rho13, rho23 - rho12 * rho13, 1 - rho13^2) , 2)
+}
+
 # generate u2 and u3, as in equation 2.44
 generate_u2_u3 <- function(n, u1, sigma1, rho12, rho13, rho23) {
-  u_cov <- matrix(c(1 - rho12^2, rho23 - rho12 * rho13, rho23 - rho12 * rho13, 1 - rho13^2) , 2)
+  u_cov <- generate_u_cov(rho12, rho13, rho23)
   u_mean <- c(rho12 / sigma1, rho13 / sigma1) * u1
   mvrnorm(n=n, mu=u_mean, Sigma=u_cov)
 }
 
-# solve the poisson regression on y1 for mu1, as in equation 2.15
-get_mu1 <- function(target, data, noise) {
+# solve the poisson regression on y1 for dot_product1, as in equation 2.15
+get_dot_product1 <- function(target, data, noise) {
   data$noise <- noise
   poisson_regression <- glm(target ~ . + offset(noise) + 0 - noise, data=data, family=poisson(link=log))
-  mu1 <- predict(poisson_regression, newdata=data) - noise
-  mu1
+  dot_product1 <- predict(poisson_regression, newdata=data) - noise
+  dot_product1
 }
 
-# solve the probit regression on y2 for mu2, as in equation 2.16
-get_mu2 <- function(target, data, noise) {
+# solve the probit regression on y2 for dot_product2, as in equation 2.16
+get_dot_product2 <- function(target, data, noise) {
   data$noise <- noise
   probit_regression <- glm(target ~ . + offset(noise) - noise, data=data, family=binomial(link=probit))
-  mu2 <- predict(probit_regression, newdata=data) - noise
-  mu2
+  dot_product2 <- predict(probit_regression, newdata=data) - noise
+  dot_product2
 }
 
-# solve the ordered probit regression on y3 for mu3 and the intercepts, as in equation 2.16
-get_mu3 <- function(target, data, noise) {
+# solve the ordered probit regression on y3 for dot_product3 and the intercepts, as in equation 2.16
+get_dot_product3 <- function(target, data, noise) {
   data$noise <- noise
   new_target <- factor(target, labels=1:5)
   ordered_probit_regression <- polr(new_target ~ . + offset(noise) - noise, data=data, method="probit")
   data$noise <- NULL
   # need to do this because predict() outputs factors
-  mu3 <- as.vector(as.matrix(data) %*% coef(ordered_probit_regression))
+  dot_product3 <- as.vector(as.matrix(data) %*% coef(ordered_probit_regression))
   intercepts <- c(-Inf, ordered_probit_regression$zeta, Inf)
-  list(mu3, intercepts)
+  list(dot_product3, intercepts)
+}
+
+#
+is_positive_definite <- function(rho12, rho13, rho23) {
+  u_cov <- generate_u_cov(rho12, rho13, rho23)
+  all(eigen(u_cov)$values > 0)
 }
