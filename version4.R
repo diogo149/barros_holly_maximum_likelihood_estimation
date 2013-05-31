@@ -4,18 +4,25 @@ notes = "
 -regression 3 had no intercept
 -can tune function for Psi by using faster integrate function or adjusting absolute / relative errror
 -can provide a starting value to polr based on past starting values
+-number of iterations can be changed in glm.fit for dichotomous probit
 -sigma1 in range 1e-10 to 1e10
 -rho12, rho13, rho23 in range -1 to 1
+-removed private_insurance from x2 columns due to missing data
+-suppressing warnings on glm for dichotomous probit because of warning message 'glm.fit: fitted probabilities numerically 0 or 1 occurred'
+-the number of gauss-hermite points can be adjusted for greater accuracy / efficiency
+-the number of maximum likelihood iterations can be adjusted for greater accuracy / efficiency
 "
 
 to_do = "
--remove warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 -remove warning: glm.fit: fitted rates numerically 0 occurred
--prevent error: Error in polr(new_target ~ . + offset(noise) - noise, data = data, method = \"probit\"): attempt to find suitable starting values failed\n
--have the value to use if likelihood fails to be a changable constant
--prevent error: Error in if (abs(a + b) == Inf) {: missing value where TRUE/FALSE needed
-  -this was when using all columns, so maybe there is missing data?
+-prevent error: Error in polr: attempt to find suitable starting values failed
+-have the value to use if likelihood fails to be a changeable constant
 -use recursion when there is an error for negative log likelihood (to a maximum depth)
+-NaN error
+  -might be related to following error on polr:
+    -glm.fit: fitted rates numerically 0 occurred
+-negative log error
+  -In log(row_likelihood) : NaNs produced
 "
 
 # for the user created helper functions
@@ -32,8 +39,8 @@ x1_col_str = "gender income income2 public_sub private_sub age age2 schooling
 north center alentejo algarve acores madeira"
 x2_col_str = "gender income age age2 schooling diabetes ashtma high_blood_p
 reumat pain ostheo retina glauco cancer kidney_stone renal anxiety enphisema
-stroke obese depression heart_attack public_sub private_sub private_insurance
-age_gender north center alentejo algarve acores madeira"
+stroke obese depression heart_attack public_sub private_sub age_gender
+north center alentejo algarve acores madeira"
 x3_col_str = "gender income public_sub private_sub age age2 schooling diabetes
 ashtma high_blood_p reumat pain ostheo retina glauco cancer kidney_stone renal
 anxiety enphisema stroke obese depression heart_attack light_smoker no_smoker
@@ -41,7 +48,7 @@ wine_days single married widow north center alentejo algarve acores
 madeira"
 
 # set to FALSE for using the full set of columns
-if(TRUE) {
+if(FALSE) {
   x1_col_str = "gender income age"
   x2_col_str = "gender age income schooling"
   x3_col_str = "gender age income public_sub private_sub"
@@ -199,16 +206,15 @@ neg_likelihood <- function(params) {
   )
 }
 
-sigma1_init <- 0.5
-rho12_init <- 0.5
-rho13_init <- 0.5
-rho23_init <-0.5
+sigma1_init <- 1.0
+rho12_init <- 0.0
+rho13_init <- 0.0
+rho23_init <-0.0
 
 mle_solve <- function() {
   optim(par=c(sigma1_init, rho12_init, rho13_init, rho23_init), fn=neg_likelihood,
         lower=c(1e-10, -1, -1, -1), upper=c(1e10, 1, 1, 1), method="L-BFGS-B")
 }
 
-# 2.7649786 0.6289060 0.4706553 0.4034852
 # likelihood(c(2.7649786,0.6289060,0.4706553,0.4034852))
-# 6.4479050 0.6483112 0.3819358 0.2002347
+# likelihood(c(6.4479050,0.6483112,0.3819358,0.2002347))

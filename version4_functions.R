@@ -84,7 +84,7 @@ get_dot_product1 <- function(target, data, noise) {
 # solve the probit regression on y2 for dot_product2, as in equation 2.16
 get_dot_product2 <- function(target, data, noise) {
   data$noise <- noise
-  probit_regression <- glm(target ~ . + offset(noise) - noise, data=data, family=binomial(link=probit))
+  probit_regression <- suppressWarnings(glm(target ~ . + offset(noise) - noise, data=data, family=binomial(link=probit)))
   dot_product2 <- predict(probit_regression, newdata=data) - noise
   dot_product2
 }
