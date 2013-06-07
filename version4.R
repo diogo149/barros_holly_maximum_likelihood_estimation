@@ -186,6 +186,16 @@ likelihood <- function(params) {
 
     #####
 
+    if(any(p_y1_y2_y3 < 0)) {
+    print("min")
+    print(min(p_y1_y2_y3))
+    print("max")
+    print(max(p_y1_y2_y3))
+    # print(p_y1_y2_y3[which(p_y1_y2_y3 < 0)])
+    }
+
+    p_y1_y2_y3[p_y1_y2_y3 < 0] <- 0
+
     # add the likelihood at this u1 to the total likelihood (for the gauss-hermite integration)
     row_likelihood <- row_likelihood + p_y1_y2_y3 * gh_weight
   }
@@ -218,3 +228,6 @@ mle_solve <- function() {
 
 # likelihood(c(2.7649786,0.6289060,0.4706553,0.4034852))
 # likelihood(c(6.4479050,0.6483112,0.3819358,0.2002347))
+
+#  11.142560694  0.001195465 -0.001195464  0.001195465
+# glm.fit: fitted probabilities numerically 0 or 1 occurred
